@@ -11,7 +11,6 @@ public class Main {
       System.exit(1);
     }
   }
-
   public static void main(String[] args) {
     setLookAndFeel();
     new WelcomeMenu();
