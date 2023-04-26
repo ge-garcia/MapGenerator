@@ -1,101 +1,113 @@
 package com.gabrielgarcia;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
+import java.util.Random;
 
 public class WelcomeMenu extends JFrame implements ActionListener {
-  public ImageIcon icon;
+  // TitleBar icon
+  ImageIcon icon = new ImageIcon("compass.png");
+
+  // Layout panels
+  JPanel north = new JPanel();
+  JPanel south = new JPanel();
+  JPanel center = new JPanel();
+  JPanel seedComponent = new JPanel();
+  JPanel sizeComponent = new JPanel();
+
+  // This isn't necessary, but since my window manager lacks window titles I put this on for my presentation
+  JLabel titleBar = new JLabel("Map Generator");
+
+  // Jbuttons to draw and give a file path to a custom color palette
+  JButton draw = new JButton("Draw");
+  JButton chooseColor = new JButton("Set a custom color palette:");
+  JButton submitSeed = new JButton("Submit");
+
+  JTextField enterSeed = new JTextField("Enter a seed here");
+  JTextField enterSize = new JTextField("Enter size here. (will be a square)");
+  JButton submitSize = new JButton("Enter the size here. will be a square");
+
+  JCheckBox biomes = new JCheckBox("Check the box to include biomes");
+  JComboBox fileTypeBox = new JComboBox(new String[] {"JPG", "PNG"});
+
+  // Options to pass into TileMap
+  Random random = new Random();
+  long seed = random.nextLong();
+  Colors colors = new Colors();
+  int size = 16;
 
   public WelcomeMenu() {
-    /* Panels and panel options */
-    icon = new ImageIcon("compass.png");
-    JPanel panel = new JPanel(); // Panel to serve as layout
-    JPanel north = new JPanel(); // Panel to hold title label
-    JPanel south = new JPanel(); // Panel to hold the two buttons
-    JPanel center = new JPanel(); // Panel to hold the user options prompt
-    // JPanel east = new JPanel();
-    // JPanel west = new JPanel();
-
-    panel.setLayout(new BorderLayout());
-    panel.setSize(400, 400);
-    south.setSize(400, 100);
-    north.setSize(400, 100);
-    center.setSize(200, 600);
-
-
     /* Title bar and alignment options  -> NORTH */
-    JLabel titleBar = new JLabel();
-    titleBar.setText("Map Generator");
     titleBar.setFont(new Font("JetBrains Mono", Font.PLAIN, 32));
     titleBar.setHorizontalTextPosition(JLabel.CENTER);
     titleBar.setVerticalTextPosition(JLabel.CENTER);
     titleBar.setHorizontalAlignment(JLabel.CENTER);
     titleBar.setVerticalAlignment(JLabel.TOP);
 
-    /* JButtons to save and draw -> SOUTH */
-    JButton saveToFile = new JButton(); // Save to file option button
-    saveToFile.addActionListener(this); // Will pop up a file chooser on click or use of mnemonic
-    // saveToFile.setSize(300,100);
-    saveToFile.setFocusable(false);
-    saveToFile.setText("Save to file");
-    saveToFile.setFont(new Font("JetBrains Mono", Font.PLAIN, 15));
-    saveToFile.setMnemonic(KeyEvent.VK_S); // Alt + S to save
+    /* JButtons to draw -> SOUTH */
+    draw.addActionListener(this); // Will draw the map on click or use of mnemonic
+    draw.setFocusable(false);
+    draw.setFont(new Font("JetBrains Mono", Font.PLAIN, 15));
+    draw.setMnemonic(KeyEvent.VK_D); // Alt + D to draw
 
-    JButton drawInGUI = new JButton(); // Draw in GUI option button
-    drawInGUI.addActionListener(this); // Will draw the map with corresponding on click or use of mnemonic
-    // drawInGUI.setSize(300, 100);
-    drawInGUI.setFocusable(false);
-    drawInGUI.setText("Draw in new window");
-    drawInGUI.setFont(new Font("JetBrains Mono", Font.PLAIN, 15));
-    drawInGUI.setMnemonic(KeyEvent.VK_D); // Alt + D to draw
-
-    /* User option labels and buttons */
-    JCheckBox biomePrompt= new JCheckBox();
-    biomePrompt.setText("Check the box to include biomes");
-    biomePrompt.addActionListener(this);
-
-
-    String[] fileTypes = { "JPEG", "JPG", "PNG" };
-    JComboBox fileTypeBox = new JComboBox(fileTypes);
-
+    /* User options  -> CENTER */
+    biomes.setAlignmentX(Component.CENTER_ALIGNMENT);
+    fileTypeBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+    chooseColor.setAlignmentX(Component.CENTER_ALIGNMENT);
+    biomes.addActionListener(this);
     fileTypeBox.addActionListener(this);
+    chooseColor.addActionListener(this);
+    submitSeed.addActionListener(this);
+    submitSize.addActionListener(this);
 
     /* JFrame Options */
-    this.setSize(400,400); // Initial size (and permanent since resizable is set to false)
-    this.setLocationRelativeTo(null); // Make frame appear in the center of the screen, not necessary, but was giving me issues with my window manager
-    this.setResizable(false); // Don't allow the user to resize, since this is just a welcome menu
+    this.setResizable(true); // Allow resizing
     this.setTitle("Map Generator - Final Project"); // Set the title of the window
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Make sure it actually exits on close instead of running the background
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Make sure it actually exits on close
     this.setIconImage(icon.getImage()); // Set the icon image chosen instead of Duke as top left
+    this.setLayout(new BorderLayout());
 
-    /* Add the panels to the frame, as well as the corresponding components */
+    /* Add components to panels, then panels to frame */
+    seedComponent.setLayout(new FlowLayout());
+    seedComponent.add(enterSeed);
+    seedComponent.add(submitSeed);
+
+    sizeComponent.setLayout(new FlowLayout());
+    sizeComponent.add(enterSize);
+    sizeComponent.add(submitSize);
+
+    center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
     north.add(titleBar);
-    south.add(saveToFile);
-    south.add(drawInGUI);
+    south.add(draw);
     center.add(fileTypeBox);
-    center.add(biomePrompt);
-    panel.add(north, BorderLayout.NORTH);
-    panel.add(south, BorderLayout.SOUTH);
-    panel.add(center, BorderLayout.CENTER);
-    this.add(panel);
+    center.add(biomes);
+    center.add(chooseColor);
+    center.add(seedComponent);
 
+    this.add(north, BorderLayout.NORTH);
+    this.add(south, BorderLayout.SOUTH);
+    this.add(center, BorderLayout.CENTER);
+    this.pack();
+    this.setLocationRelativeTo(null); // Make frame appear in the center of the screen
     this.setVisible(true); // Makes sure the screen is actually visible, left at the end to avoid problems
   }
 
   @Override
-  public void actionPerformed(ActionEvent e) {
-    /* if (e.getSource() == saveToFile) {
-
+   public void actionPerformed(ActionEvent e) {
+    if (e.getSource() == chooseColor) {
+      JOptionPane.showMessageDialog(null, "Please enter the path to your custom color palette. Should be a txt file with each color entered in hexadecimal format on its own line in the following order: water, sand, grass, forest, mountain, and snow. If you do not have a custom color palette, you can use the default one included in the project.", "Custom Color Palette", JOptionPane.INFORMATION_MESSAGE);
+      JFileChooser fileChooser = new JFileChooser();
     }
-    if (e.getSource() == drawInGUI) {
-
+    if (e.getSource() == submitSeed) {
+      seed = Long.parseLong(enterSeed.getText());
     }
-    if (e.getSource() == biomePrompt) {
-
+    if (e.getSource() == submitSize) {
+      size = Integer.parseInt(enterSize.getText());
     }
-    if (e.getSource() == fileTypeBox) {
-      String fileType = fileTypeBox.getSelectedItem();
-    } */
+    if (e.getSource() == draw) {
+      this.dispose();
+      MapFrame mapFrame = new MapFrame(seed, colors, size);
+    }
   }
 }
