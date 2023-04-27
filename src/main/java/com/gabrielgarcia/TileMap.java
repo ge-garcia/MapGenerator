@@ -5,49 +5,47 @@ import java.util.Random;
 import javax.swing.*;
 
 public class TileMap extends JPanel {
-  private static final int TILE_SIZE = 20;
-  private double[][] tileMap;
-  private Colors colors;
-  private long seed;
-  private int size;
-  private JFrame mapWindow;
+  private static final int TILE_SIZE = 10;
+  private final double[][] tileMap;
+  private final double[][] moistureMap;
+  private final Colors colors;
+  private final boolean biomes;
+  private final long elevationSeed;
+  private final long moistureSeed;
+  private final Random random = new Random();
+  public final int size;
 
-  public TileMap() { // Default constructor, should never be used
-    tileMap = new double[16][16];
-    colors = new Colors();
-  }
-  public TileMap(long seed, Colors colors, int size) {
+  public TileMap(long seed, Colors colors, int size, boolean biomes) {
     tileMap = new double[size][size];
+    moistureMap = new double[size][size];
     this.colors = colors;
-    this.seed = seed;
+    this.elevationSeed = seed;
+    this.moistureSeed = random.nextLong();
     this.size = size;
-    this.setPreferredSize(new Dimension(size * TILE_SIZE, size * TILE_SIZE));
+    this.biomes = biomes;
+    this.setSize(new Dimension(size * TILE_SIZE, size * TILE_SIZE));
     this.generateMap();
     this.printMap();
   }
-
-  // I just check the length of the array since its designed to have uniform width and height
-  public int getWidth() { return tileMap[0].length; }
-  public int getHeight() {
-    return tileMap.length;
+   private void printMap() {
+    // Used for debugging
+    for (int y = 0; y < tileMap.length; y++) {
+      for (int x = 0; x < tileMap[y].length; x++) {
+        System.out.printf("%5.2f, ", tileMap[x][y]);
+      }
+      System.out.println();
+    }
   }
+
   private void generateMap() {
     // Generate the values for the map
     for (int x = 0; x < size; x++) {
       for (int y = 0; y < size; y++) {
-        double value = OpenSimplex2S.noise2(seed, x, y);
-        tileMap[x][y] = value;
+        double heightValue = OpenSimplex2S.noise2(elevationSeed, x, y);
+        double moistureValue = OpenSimplex2S.noise2(moistureSeed, x, y);
+        tileMap[x][y] = heightValue;
+        moistureMap[x][y] = moistureValue;
       }
-    }
-  }
-
-  private void printMap() {
-    // Only here for debugging
-    for (int x = 0; x < getWidth(); x++) {
-      for (int y = 0; y < getHeight(); y++) {
-        System.out.printf("%.2f", tileMap[x][y]);
-      }
-      System.out.println();
     }
   }
 
@@ -55,20 +53,15 @@ public class TileMap extends JPanel {
   protected void paintComponent(Graphics g) {
     // Paint to screen
     super.paintComponent(g);
-    g.clearRect(0, 0, getWidth() * TILE_SIZE, getHeight() * TILE_SIZE);
-    int rectWidth = TILE_SIZE;
-    int rectHeight = TILE_SIZE;
 
-    for (int x = 0; x < getWidth(); x++) {
-      for (int y = 0; y < getHeight(); y++) {
-        int i = x * rectWidth;
-        int j = y * rectHeight;
-        Color tileColor = colors.getBiomeBlock(tileMap[x][y]);
-        g.setColor(tileColor);
-        g.fillRect(i, j, rectWidth, rectHeight);
+    for (int y = 0; y < tileMap.length; y++) {
+      for (int x = 0; x < tileMap[y].length; x++) {
+        int i = x * TILE_SIZE;
+        int j = y * TILE_SIZE;
+        if (biomes) g.setColor(colors.getBiomeBlock(tileMap[y][x], moistureMap[x][y]));
+        else g.setColor(colors.getBiomeBlock(tileMap[x][y]));
+        g.fillRect(i, j, TILE_SIZE, TILE_SIZE);
       }
     }
-    SwingUtilities.invokeLater(this::repaint);
   }
-
 }

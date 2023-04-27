@@ -22,20 +22,19 @@ public class WelcomeMenu extends JFrame implements ActionListener {
   // Jbuttons to draw and give a file path to a custom color palette
   JButton draw = new JButton("Draw");
   JButton chooseColor = new JButton("Set a custom color palette:");
-  JButton submitSeed = new JButton("Submit");
 
   JTextField enterSeed = new JTextField("Enter a seed here");
-  JTextField enterSize = new JTextField("Enter size here. (will be a square)");
+  JButton submitSeed = new JButton("Submit");
+  JTextField enterSize = new JTextField("Enter size here. (# of Tiles)");
   JButton submitSize = new JButton("Submit");
-
-  JCheckBox biomes = new JCheckBox("Check the box to include biomes");
-  JComboBox fileTypeBox = new JComboBox(new String[] {"JPG", "PNG"});
+  JCheckBox biomeBox = new JCheckBox("Include Biomes");
 
   // Options to pass into TileMap
   Random random = new Random();
   long seed = random.nextLong();
   Colors colors = new Colors();
   int size = 16;
+  boolean biomes = false;
 
   public WelcomeMenu() {
     /* Title bar and alignment options  -> NORTH */
@@ -52,14 +51,11 @@ public class WelcomeMenu extends JFrame implements ActionListener {
     draw.setMnemonic(KeyEvent.VK_D); // Alt + D to draw
 
     /* User options  -> CENTER */
-    biomes.setAlignmentX(Component.CENTER_ALIGNMENT);
-    fileTypeBox.setAlignmentX(Component.CENTER_ALIGNMENT);
     chooseColor.setAlignmentX(Component.CENTER_ALIGNMENT);
-    biomes.addActionListener(this);
-    fileTypeBox.addActionListener(this);
     chooseColor.addActionListener(this);
     submitSeed.addActionListener(this);
     submitSize.addActionListener(this);
+    biomeBox.setAlignmentX(Component.CENTER_ALIGNMENT);
 
     /* JFrame Options */
     this.setResizable(true); // Allow resizing
@@ -70,21 +66,23 @@ public class WelcomeMenu extends JFrame implements ActionListener {
 
     /* Add components to panels, then panels to frame */
     seedComponent.setLayout(new FlowLayout());
+    seedComponent.setAlignmentX(Component.CENTER_ALIGNMENT);
     seedComponent.add(enterSeed);
     seedComponent.add(submitSeed);
 
     sizeComponent.setLayout(new FlowLayout());
+    sizeComponent.setAlignmentX(Component.CENTER_ALIGNMENT);
     sizeComponent.add(enterSize);
     sizeComponent.add(submitSize);
+
 
     center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
     north.add(titleBar);
     south.add(draw);
-    center.add(fileTypeBox);
-    center.add(biomes);
     center.add(chooseColor);
     center.add(seedComponent);
     center.add(sizeComponent);
+    center.add(biomeBox);
 
     this.add(north, BorderLayout.NORTH);
     this.add(south, BorderLayout.SOUTH);
@@ -97,7 +95,11 @@ public class WelcomeMenu extends JFrame implements ActionListener {
   @Override
    public void actionPerformed(ActionEvent e) {
     if (e.getSource() == chooseColor) {
-      JOptionPane.showMessageDialog(null, "Please enter the path to your custom color palette. Should be a txt file with each color entered in hexadecimal format on its own line in the following order: water, sand, grass, forest, mountain, and snow. If you do not have a custom color palette, you can use the default one included in the project.", "Custom Color Palette", JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(null, """
+              Please enter the path to your custom color palette.
+              Should be a txt file with each color entered in hexadecimal format on its own line in the following order:
+              Water, Sand, Grass, Forest, Rainforest, Mountain, Snow.
+              If you do not have a custom color palette, you can use the default one included in the project.""", "Custom Color Palette", JOptionPane.INFORMATION_MESSAGE);
       JFileChooser fileChooser = new JFileChooser();
       int res = fileChooser.showOpenDialog(null); // Allows the user to select the file to open
       // If the user doesn't hit cancel or exit the window
@@ -113,7 +115,6 @@ public class WelcomeMenu extends JFrame implements ActionListener {
           try {
             // Change the colors object to = the users custom palette preference
             colors = new Colors(getCustomPalette(file));
-            colors.printColors();
           } catch (IOException ex) {
             throw new RuntimeException(ex);
           }
@@ -127,17 +128,17 @@ public class WelcomeMenu extends JFrame implements ActionListener {
       size = Integer.parseInt(enterSize.getText());
     }
     if (e.getSource() == draw) {
+      biomes = biomeBox.isSelected();
       this.dispose();
-      TileMap tileMap = new TileMap(seed, colors, size);
-      MapFrame map = new MapFrame(tileMap, size);
+      TileMap tileMap = new TileMap(seed, colors, size, biomes);
+      MapFrame map = new MapFrame(tileMap);
     }
   }
   private String[] getCustomPalette(File file) throws IOException {
     BufferedReader reader = new BufferedReader(new FileReader(file));
     String line;
     ArrayList<String> colors = new ArrayList<>();
-    int index = 0;
-    // Read each line in the file, trim whitespace, and add that to a String[] that will be used in the Colors[]
+    // Read each line in the file, trim whitespace, and add that to a String[] that will be used in the Colors class
     while ((line = reader.readLine()) != null) {
       line = line.trim();
       colors.add(line);

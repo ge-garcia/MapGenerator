@@ -7,51 +7,56 @@ public class Colors {
   Color water;
   Color sand;
   Color grass;
+  Color forest;
+  Color rainforest;
   Color mountain;
   Color snow;
 
   public Colors() {
     // default colors, based on https://github.com/catppuccin/catppuccin
-    water    = new Color(130, 170, 255); // #7AA2F7
-    sand     = new Color(255, 199, 119); // #FFC777
-    grass    = new Color(195, 232, 141); // #C3E88D
-    mountain = new Color(130, 139, 184); // #A9B1D6
-    snow     = new Color(198, 208, 245); // #C6D0F5
+    water      = new Color(130, 170, 255); // #7AA2F7
+    sand       = new Color(255, 199, 119); // #FFC777
+    grass      = new Color(195, 232, 141); // #C3E88D
+    forest     = new Color(64, 160, 43);   // #40A02B
+    rainforest = new Color(129, 200, 190); // #81C8BE
+    mountain   = new Color(130, 139, 184); // #A9B1D6
+    snow       = new Color(198, 208, 245); // #C6D0F5
   }
 
   public Colors(String[] custom) {
     // custom colors, based on user choice from a txt file
-    water    = Color.decode(custom[0]);
-    sand     = Color.decode(custom[1]);
-    mountain = Color.decode(custom[2]);
-    grass    = Color.decode(custom[3]);
-    snow     = Color.decode(custom[4]);
-  }
-  public void printColors() {
-    // Debugging console statements
-    System.out.println(water.toString());
-    System.out.println(sand.toString());
-    System.out.println(grass.toString());
-    System.out.println(mountain.toString());
-    System.out.println(snow.toString());
+    water      = Color.decode(custom[0]);
+    sand       = Color.decode(custom[1]);
+    grass      = Color.decode(custom[2]);
+    forest     = Color.decode(custom[3]);
+    rainforest = Color.decode(custom[4]);
+    mountain   = Color.decode(custom[5]);
+    snow       = Color.decode(custom[6]);
   }
 
-  public Color getBiomeBlock(double noiseValue) {
-    // Sets a color based on height
-    if (noiseValue < -0.7) {
-      return water.darker();
-    } else if (noiseValue < -0.3) {
-      return water;
-    } else if (noiseValue < 0) {
-      return water.brighter();
-    } else if (noiseValue < 0.2) {
-      return sand;
-    } else if (noiseValue < 0.5) {
-      return grass;
-    } else if (noiseValue < 0.7){
-      return mountain;
+  public Color getBiomeBlock(double height) {
+    // For when the user does not want biomes
+    if (height < -0.4) return water.darker();
+    if (height < 0) return water;
+    if (height < 0.5) return grass;
+    else return grass.darker();
+  }
+  public Color getBiomeBlock(double height, double moisture) {
+    // Below "sea-level"
+    if (height < -0.5) return water.darker();
+    if (height < -0.1) return water;
+
+    // Above "sea-level"
+    if (height > 0.8) {
+        if (moisture < 0.5) return mountain;
+        else return snow;
+    } else if (height > 0.5) {
+        if (moisture < 0.5) return forest;
+        else return snow;
     } else {
-      return snow;
+        if (moisture < 0.3) return sand;
+        if (moisture < 0.6) return grass;
+        else return rainforest;
     }
   }
 }
