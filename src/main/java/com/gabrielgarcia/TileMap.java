@@ -5,7 +5,7 @@ import java.util.Random;
 import javax.swing.*;
 
 public class TileMap extends JPanel {
-  private static final int TILE_SIZE = 10;
+  private static final int TILE_SIZE = 20;
   private final double[][] tileMap;
   private final double[][] moistureMap;
   private final Colors colors;

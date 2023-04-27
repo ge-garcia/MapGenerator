@@ -13,12 +13,15 @@ public class MapFrame extends JFrame implements ActionListener {
     private final TileMap tileMap;
     private final JButton jpgButton = new JButton("Save to jpg");
     private final JButton pngButton = new JButton("Save to png");
+    private final JPanel saveButtons = new JPanel(new FlowLayout());
     private final int height;
     private final int width;
 
     public MapFrame(TileMap tileMap) {
         jpgButton.addActionListener(this);
         pngButton.addActionListener(this);
+        saveButtons.add(jpgButton);
+        saveButtons.add(pngButton);
         this.tileMap = tileMap;
         this.height = tileMap.getHeight();
         this.width = tileMap.getWidth();
@@ -26,8 +29,7 @@ public class MapFrame extends JFrame implements ActionListener {
         this.setSize(tileMap.getSize());
         this.setLayout(new BorderLayout()); // Set the layout manager
         this.add(tileMap, BorderLayout.CENTER); // Add the TileMap to the center
-        this.add(jpgButton, BorderLayout.SOUTH);
-        this.add(pngButton, BorderLayout.SOUTH);
+        this.add(saveButtons, BorderLayout.SOUTH);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
